@@ -37,10 +37,13 @@ const claimRequest = require('claimRequest');
 const extractEventsFromMpv2 = require('extractEventsFromMpv2');
 const getClientName = require('getClientName');
 const getRemoteAddress = require('getRemoteAddress');
+const getRequestHeader = require('getRequestHeader');
 const isRequestMpv2 = require('isRequestMpv2');
 const returnResponse = require('returnResponse');
 const runContainer = require('runContainer');
 const setPixelResponse = require('setPixelResponse');
+
+const log = require('logToConsole');
 
 if (isRequestMpv2()) {
   claimRequest();
@@ -48,10 +51,14 @@ if (isRequestMpv2()) {
  
   for (let i = 0; i < events.length; ++i) {
     const event = events[i];
-    const ip = event.ip_override;
-    const ua = event.user_agent;
+    
+    // Get User-Agent and IP from incoming request
+    const ua = getRequestHeader('user-agent');
+    const ip = '1.2.3.4';
+    
     const anmize_id = event.anmize_id;
-        if(!event.ip_override && ip) event.ip_override = '111.000.222.000';
+    
+        if(!event.ip_override && ip) event.ip_override = ip;
         if(!event.user_agent && ua) event.user_agent = ua;
     
         if(event.anmize_id)  {
@@ -66,7 +73,7 @@ if (isRequestMpv2()) {
           }      
       
         setPixelResponse();
-       runContainer(event, () => returnResponse());
+        runContainer(event, () => returnResponse());
     
   }
 }
@@ -167,6 +174,24 @@ ___SERVER_PERMISSIONS___
       "param": []
     },
     "isRequired": true
+  },
+  {
+    "instance": {
+      "key": {
+        "publicId": "logging",
+        "versionId": "1"
+      },
+      "param": [
+        {
+          "key": "environments",
+          "value": {
+            "type": 1,
+            "string": "debug"
+          }
+        }
+      ]
+    },
+    "isRequired": true
   }
 ]
 
@@ -186,6 +211,6 @@ scenarios:
 
 ___NOTES___
 
-Created on 06/05/2022, 19:52:49
+Created on 13/05/2022, 18:44:40
 
 
